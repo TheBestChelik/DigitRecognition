@@ -3,6 +3,9 @@ from tkinter.ttk import *
 from PIL import Image, ImageDraw
 from digitRecogniser import Recognizer
 import numpy as np
+import matplotlib.pyplot as plt
+import os
+from train import *
 
 class PaintApp:
     def __init__(self, root):
@@ -12,7 +15,7 @@ class PaintApp:
         self.brush_size = self.canvas_width/28
         self.brush_color = "black"
         
-        self.recognizer = Recognizer()
+        self.recognizer = Recognizer("Hyi.model")
 
         # Create the tab control and add the pages
         self.tab_control = Notebook(self.root)
@@ -86,15 +89,20 @@ class PaintApp:
             parent,
             bg="white",
             width=self.canvas_width,
-            height=self.canvas_height
+            height=self.canvas_height,
+            state="disabled"
         )
         self.train_canvas.pack(side=LEFT)
         
+        # Create a "Create new model" button
+        create_model_button = Button(parent, text="Create new model", command=self.enable_controls)
+        create_model_button.pack()
+        
         # Create a label and textbox for the model name
-        model_label = Label(parent, text="Model name:")
-        model_label.pack()
-        model_textbox = Entry(parent)
-        model_textbox.pack()
+        self.model_label = Label(parent, text="Model name:")
+        self.model_label.pack()
+        self.model_textbox = Entry(parent, state="disabled")
+        self.model_textbox.pack()
         
         # Add some space between the textbox and the "Write digit:" label
         space_label = Label(parent, text="")
@@ -105,44 +113,114 @@ class PaintApp:
         write_digit_label.pack()
         
         # Create a label to display the digit being written (with big font size)
-        self.digit_label = Label(parent, text="7", font=("Helvetica", 36))
+        self.digit_label = Label(parent, text="", font=("Helvetica", 36))
         self.digit_label.pack()
         
         # Create a "Save" button
-        save_button = Button(parent, text="Save")
-        save_button.pack()
+        self.save_button = Button(parent, text="Save", state="disabled", command=self.ImageDrawn)
+        self.save_button.pack()
         
         # Add some space between the "Save" button and the progress bars
         space_label2 = Label(parent, text="")
         space_label2.pack()
         
         # Create a progressbar for digit count
-        digit_progressbar_label = Label(parent, text="Digit 7 of 10")
-        digit_progressbar_label.pack()
-        digit_progressbar = Progressbar(parent, orient="horizontal", length=100, mode="determinate")
-       
-        digit_progressbar.pack()
-        digit_progressbar.configure(value=30)
-
+        self.digit_progressbar_label = Label(parent, text="Digit 0 of 10")
+        self.digit_progressbar_label.pack()
+        self.digit_progressbar = Progressbar(parent, orient="horizontal", length=100, mode="determinate")
+        self.digit_progressbar.pack()
+        
         # Create a progressbar for overall progress
-        overall_progressbar_label = Label(parent, text="Progress: 77 of 100")
-        overall_progressbar_label.pack()
-        overall_progressbar = Progressbar(parent, orient="horizontal", length=100, mode="determinate")
-        overall_progressbar.pack()
-        overall_progressbar.configure(value = 77)
+        self.overall_progressbar_label = Label(parent, text="Progress: 0%")
+        self.overall_progressbar_label.pack()
+        self.overall_progressbar = Progressbar(parent, orient="horizontal", length=100, mode="determinate")
+        self.overall_progressbar.pack()
         
         # Create a "Train" button
-        train_button = Button(parent, text="Train")
-        train_button.pack()
+        self.train_button = Button(parent, text="Train", command=self.StartTrain)
+        self.train_button.pack()
+
+        training_progressbar = Progressbar(parent, orient="horizontal", length=100, mode="determinate")
+        training_progressbar.pack()
         
         self.train_canvas.bind("<B1-Motion>", lambda event, widget=self.train_canvas: self.draw(widget, event))
         #self.train_canvas.bind("<ButtonRelease-1>", self.export)
         self.train_canvas.bind("<Button-3>", lambda event, widget=self.train_canvas: self.rightClick(widget, event))
 
+    def StartTrain(self):
+        file_list = os.listdir(self.model_textbox.get())
+        image_arrays = []
+        y_train = []
+        for file_name in file_list:
+            image_arrays.append(np.invert(np.load(self.model_textbox.get()+"/"+file_name)))
+            #y_train = np.append(y_train, int(file_name[0]))
+            y_train.append(int(file_name[0]))
+        x_train = np.stack(image_arrays)
+        y_train = np.stack(y_train)
+        print(type(y_train))
+        print(x_train.shape)
+        trainModel(x_train, y_train, self.model_textbox.get()+".model")
 
 
+    def enable_controls(self):
+        # Enable all the controls
+        self.model_textbox.configure(state="normal")
+        self.save_button.configure(state="normal")
+        self.train_canvas.configure(state="normal")
+        self.CurDigit = 0
+        self.DigitNum = 0
+        self.MaxCopiesOfDigit = 10
+        self.UpdateProgress()
 
+        
+    def UpdateProgress(self):
+        self.digit_label.configure(text=str(self.CurDigit))
+        digit_progress = round(self.DigitNum/self.MaxCopiesOfDigit * 100)
+        overall_progress = round((self.CurDigit*self.MaxCopiesOfDigit+self.DigitNum)/(10*self.MaxCopiesOfDigit)*100)
+        self.digit_progressbar_label.configure(text=f"Digit {self.DigitNum} of {self.MaxCopiesOfDigit}")
+        self.overall_progressbar_label.configure(text=f"Progress: {overall_progress} %")
+        self.digit_progressbar.configure(value=digit_progress)
+        self.overall_progressbar.configure(value=overall_progress)
+    
+    def ImageDrawn(self):
+        self.SaveImage(self.train_canvas)
+        self.DigitNum+=1
+        if(self.DigitNum==self.MaxCopiesOfDigit and self.CurDigit!=9):
+            self.CurDigit += 1
+            self.DigitNum = 0
+        self.UpdateProgress()
+        if(self.CurDigit == 9 and self.DigitNum == self.MaxCopiesOfDigit):
+            self.save_button.configure(state="disabled")
+            self.train_button.configure(state="normal")
+    
+    def SaveImage(self, canvas):
+        image = Image.new('L', (560, 560), color=255)
+        
+        # Create a drawing object
+        draw = ImageDraw.Draw(image)
+        
+        # Iterate over all items on the canvas
+        items = canvas.find_all()
+        for item in items:
+            # Get the coordinates of the item
+            x1, y1, x2, y2 = canvas.coords(item)
+            
+            # Draw a rectangle on the image using the coordinates
+            draw.rectangle([x1, y1, x2, y2], fill=0)
+        
+        # Resize the image to 28x28 pixels
+        image = image.resize((28, 28), Image.LANCZOS)
+        
+        # Convert the image to a NumPy array
+        image_array = np.array(image)
+        if not os.path.exists(f"{self.model_textbox.get()}"):
+            os.mkdir(self.model_textbox.get())
+        np.save(f"{self.model_textbox.get()}/{self.CurDigit}_{self.DigitNum}", image_array)
+
+    
     def draw(self, widget, event):
+        if(widget['state']!="normal"):
+            return
         x1, y1 = (event.x - self.brush_size), (event.y - self.brush_size)
         x2, y2 = (event.x + self.brush_size), (event.y + self.brush_size)
         widget.create_oval(x1, y1, x2, y2, fill=self.brush_color, width=self.brush_size)
@@ -172,7 +250,6 @@ class PaintApp:
         
         # Perform digit recognition using the Recognizer object
         digit = self.recognizer.Recognize(image_array)
-    
         # Update the DigitLabel text
         self.recognize_digit_label.config(text=str(digit))
 

@@ -3,8 +3,8 @@ import cv2
 import numpy as np
 import os
 class Recognizer:
-    def __init__(self):
-        self.model = tf.keras.models.load_model("handwriten.model")
+    def __init__(self, modelName):
+        self.model = tf.keras.models.load_model(modelName)
 
     def Recognize(self, img):
         img = np.invert(np.array([img]))
