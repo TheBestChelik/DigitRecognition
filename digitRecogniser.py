@@ -3,9 +3,11 @@ import cv2
 import numpy as np
 import os
 class Recognizer:
-    def __init__(self, modelName):
+    def __init__(self):
+        pass
+    def SetModel(self, modelName):
         self.model = tf.keras.models.load_model(modelName)
-
+    
     def Recognize(self, img):
         img = np.invert(np.array([img]))
         prediction = self.model.predict(img, verbose = 0)
