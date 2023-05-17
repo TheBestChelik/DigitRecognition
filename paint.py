@@ -63,6 +63,8 @@ class PaintApp:
         self.canvas.bind("<Button-3>", self.rightClick)
         self.canvas.bind("<Return>", self.enter_pressed)
 
+        self.NumDigitsAdded = 0
+
     def enter_pressed(self, event):
         if(self.tab_control.index(self.tab_control.select())== 1 and self.model_textbox.get()!=""):
             self.ImageDrawn()
@@ -98,7 +100,15 @@ class PaintApp:
         # Add a "Save" button
         self.save_button_update = Button(parent, text="Save", command=self.SaveUpdate)
         self.save_button_update.pack()
+        # Add a "Retrain" button
+        self.retrain_button = Button(parent, text="Retrain", command=self.train_button_pressed)
+        self.retrain_button.pack()
 
+        # Add a label for the number of digits added
+        label = Label(parent, text="Digits added:")
+        label.pack()
+        self.NumDigitsAdded_label = Label(parent, text="0", font=("Arial", 24))
+        self.NumDigitsAdded_label.pack()
         # Add a frame to hold the digit label and align it vertically
         label_frame = Frame(parent)
         label_frame.pack(side=TOP, pady=0, fill=BOTH, expand=True)
@@ -106,11 +116,15 @@ class PaintApp:
         # Add a frame to center the digit label vertically and horizontally
         center_frame = Frame(label_frame)
         center_frame.pack(expand=True)
+
+
     def SaveUpdate(self):
         print(self.update_textbox.get("1.0", "end"))
         filename = f"{self.update_textbox.get('1.0', 'end-1c')}_{int(time.time())}"
         self.SaveImage(self.canvas, dirname=self.label_combobox_updator.get()[:-6], filename=filename)
         self.clear_canvas()
+        self.NumDigitsAdded+=1
+        self.NumDigitsAdded_label.config(text=str(self.NumDigitsAdded))
 
 
     def validate_input(self, event):
@@ -180,6 +194,7 @@ class PaintApp:
         self.recognize_digit_label.pack()
 
     def ChangeModel(self, event, widget):
+        self.NumDigitsAdded = 0
         self.recognizer.SetModel(widget.get())
 
     def add_train_controls(self, parent):
@@ -226,9 +241,18 @@ class PaintApp:
         self.overall_progressbar.pack()
 
         # Create a "Train" button
-        self.train_button = Button(parent, text="Train", state="disabled", command=self.StartTrain)
+        self.train_button = Button(parent, text="Train", state="disabled", command=self.train_button_pressed)
         self.train_button.pack()
         self.model_textbox.bind("<KeyRelease>", self.CheckExistanceModel)
+
+
+    def train_button_pressed(self):
+        if self.tab_control.index(self.tab_control.select()) == 1:
+            moduleName = self.model_textbox.get()
+        else:
+            moduleName = self.label_combobox_updator.get()[:-6]
+        self.StartTrain(modelName=moduleName)
+    
 
     def CheckExistanceModel(self, event):
         if(self.model_textbox.get() == ""):
@@ -246,12 +270,12 @@ class PaintApp:
                 self.error_label.configure(text="")
             
         
-    def StartTrain(self):
-        file_list = os.listdir(self.model_textbox.get())
+    def StartTrain(self, modelName):
+        file_list = os.listdir(modelName)
         image_arrays = []
         y_train = []
         for file_name in file_list:
-            image_arrays.append(np.invert(np.load(self.model_textbox.get()+"/"+file_name)))
+            image_arrays.append(np.invert(np.load(modelName+"/"+file_name)))
             #y_train = np.append(y_train, int(file_name[0]))
             y_train.append(int(file_name[0]))
         x_train = np.stack(image_arrays)
@@ -259,8 +283,8 @@ class PaintApp:
         #print(type(y_train))
         #print(x_train.shape)
         self.train_button.configure(state="disabled")
-        trainModel(x_train, y_train, self.model_textbox.get()+".model")
-        self.model_files.append(self.model_textbox.get()+".model")
+        trainModel(x_train, y_train, modelName+".model")
+        self.model_files.append(modelName+".model")
         self.train_button.configure(state="normal")
 
 
@@ -269,7 +293,7 @@ class PaintApp:
         self.save_button.configure(state="normal")
         self.CurDigit = 0
         self.DigitNum = 0
-        self.MaxCopiesOfDigit = 10
+        self.MaxCopiesOfDigit = 1
         self.UpdateProgress()
 
         
@@ -331,6 +355,8 @@ class PaintApp:
 
     
     def export(self, event):
+        if self.tab_control.index(self.tab_control.select()) == 1:
+            return
         if self.tab_control.index(self.tab_control.select()) == 0:
             if(self.label_combobox.get() == ""):
                 self.error_label_recognizer.configure(text="Select the model!")
