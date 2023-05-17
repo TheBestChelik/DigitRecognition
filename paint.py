@@ -293,7 +293,7 @@ class PaintApp:
         self.save_button.configure(state="normal")
         self.CurDigit = 0
         self.DigitNum = 0
-        self.MaxCopiesOfDigit = 1
+        self.MaxCopiesOfDigit = 10
         self.UpdateProgress()
 
         
