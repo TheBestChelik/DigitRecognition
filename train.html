@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Digit Recognizer - Train</title>
+    <link rel="stylesheet" href="style_train.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Digit Recognizer</h1>
+            <nav>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="recognize.html">Recognize</a></li>
+                    <li><a href="train.html">Train</a></li>
+                    <li><a href="update.html">Update Model</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h2>Train</h2>
+            <div id="train-controls">
+                <div id="error-label" class="error-label"></div>
+                <div class="flex-container">
+                    <div class="canvas-container">
+                        <label for="write-digit">Write digit:</label>
+                        <div id="digit-label" class="digit-label"></div>
+                        <canvas id="canvas" width="560" height="560"></canvas>
+                    </div>
+                    <div class="controls-container">
+                        <label for="model-name">Model name:</label>
+                        <input type="text" id="model-name">
+                        <br>
+                        <br>
+                        <button id="save" class="recognize-button" disabled>Save</button>
+                        <br>
+                        <br>
+                        <label for="digit-progress">Digit:</label>
+                        <div id="digit-progress" class="progress-bar"></div>
+                        <br>
+                        <label for="overall-progress">Progress:</label>
+                        <div id="overall-progress" class="progress-bar"></div>
+                        <br>
+                        <button id="train" class="train-button" disabled>Train</button>
+                        <br>
+                        <br>
+                        <button id="clear" class="clear-button">Clear Canvas</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2023 Digit Recognizer. All rights reserved.</p>
+            <ul class="footer-links">
+                <li><a href="https://github.com/TheBestChelik/DigitRecognition">Privacy Policy</a></li>
+                <li><a href="https://github.com/TheBestChelik/DigitRecognition">Terms of Service</a></li>
+            </ul>
+            <div class="social-media">
+                <a href="https://www.facebook.com/groups/DSRiv" class="icon"><i class="fab fa-facebook"></i></a>
+                <a href="https://twitter.com/elonmusk?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" class="icon"><i class="fab fa-twitter"></i></a>
+                <a href="https://www.instagram.com/skryhit/" class="icon"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+    <script src="train.js"></script>
+</body>
+</html>

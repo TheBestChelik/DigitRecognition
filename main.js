@@ -1,62 +1,59 @@
-const canvas = document.getElementById('canvas');
-const context = canvas.getContext('2d');
-let isDrawing = false;
+document.addEventListener("DOMContentLoaded", function() {
+    var canvas = document.getElementById("canvas");
+    var context = canvas.getContext("2d");
 
-// Set up event listeners for drawing
-canvas.addEventListener('mousedown', startDrawing);
-canvas.addEventListener('mousemove', draw);
-canvas.addEventListener('mouseup', stopDrawing);
-canvas.addEventListener('mouseout', stopDrawing);
+    var brushSizeInput = document.getElementById("brush-size");
+    var brushColorInput = document.getElementById("brush-color");
+    var saveButton = document.getElementById("save");
+    var clearButton = document.getElementById("clear");
 
-// Add event listener for the Recognize Digit button
-document.getElementById('save').addEventListener('click', recognizeDigit);
+    // Set the initial brush size to 20px
+    brushSizeInput.value = 20;
 
-function startDrawing(event) {
-    isDrawing = true;
-    draw(event);
-}
+    var isDrawing = false;
+    var lastX = 0;
+    var lastY = 0;
 
-function draw(event) {
-    if (!isDrawing) return;
-    const x = event.offsetX;
-    const y = event.offsetY;
-    context.beginPath();
-    context.moveTo(x, y);
-    context.lineTo(x, y);
-    context.lineWidth = 4;
-    context.strokeStyle = '#05B8FF';
-    context.stroke();
-}
+    function startDrawing(e) {
+        isDrawing = true;
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+    }
 
-function stopDrawing() {
-    isDrawing = false;
-}
+    function draw(e) {
+        if (!isDrawing) return;
 
-function recognizeDigit() {
-    const image = canvas.toDataURL().split(',')[1];  // Extract base64 string
-    fetch('/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `image=${image}`,
-    }).then(response => response.text())
-      .then(data => {
-          console.log(data);  // Here you will receive the predicted digit from the server
-          displayRecognizedDigit(data);  // Call a function to display the recognized digit on the page
-      });
-}
+        context.beginPath();
+        context.moveTo(lastX, lastY);
+        context.lineTo(e.offsetX, e.offsetY);
+        context.lineWidth = brushSizeInput.value;
+        context.strokeStyle = brushColorInput.value;
+        context.lineCap = "round";
+        context.lineJoin = "round";
+        context.stroke();
 
-function displayRecognizedDigit(digit) {
-    const digitDisplay = document.getElementById('digit');
-    digitDisplay.textContent = digit;
-}
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+    }
 
-// Add event listener for the Clear Canvas button
-document.getElementById('clear').addEventListener('click', clearCanvas);
+    function stopDrawing() {
+        isDrawing = false;
+    }
 
-function clearCanvas() {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    const digitDisplay = document.getElementById('digit');
-    digitDisplay.textContent = '-';
-}
+    function recognizeDigit() {
+        // Code to recognize the digit goes here
+        // You can access the pixel data of the canvas using context.getImageData()
+        // Perform any necessary preprocessing or data conversion before passing it to the recognition algorithm
+    }
+
+    function clearCanvas() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Event listeners
+    canvas.addEventListener("mousedown", startDrawing);
+    canvas.addEventListener("mousemove", draw);
+    canvas.addEventListener("mouseup", stopDrawing);
+    canvas.addEventListener("mouseout", stopDrawing);
+
+    saveButton.addEventListener("click", recognizeDigit);
+    clearButton.addEventListener("click", clearCanvas);
+});
