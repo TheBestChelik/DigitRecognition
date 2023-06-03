@@ -1,6 +1,7 @@
 from io import StringIO
 import io
 import json
+import sqlite3
 import sys
 from flask import Flask, render_template, request
 from matplotlib import pyplot as plt
@@ -9,6 +10,7 @@ from PIL import Image
 import base64
 import re
 import os
+from AI.train import trainModel
 
 
 from AI.digitRecogniser import Recognizer
@@ -37,6 +39,40 @@ def CheckModelNameValidity(ModelName):
         return 2
     return 0
 
+
+def SaveImageToDatabase(database, digit, img):
+    conn = sqlite3.connect(f"models/{database}")
+    c = conn.cursor()
+    c.execute("CREATE TABLE IF NOT EXISTS Images (digit INTEGER, image BLOB)")
+    img_bytes = img.tobytes()
+    c.execute("INSERT INTO Images (digit, image) VALUES (?, ?)", (digit, img_bytes))
+    conn.commit()
+    conn.close()
+
+
+def GetImmagesFromDatabase(database):
+    conn = sqlite3.connect(f"models/{database}")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT digit, image FROM Images")
+    rows = cursor.fetchall()
+    digits = []
+    images = []
+    for row in rows:
+        digit = row[0]
+        img_bytes = row[1]
+        
+        # Convert the byte string back to a NumPy array
+        img = np.frombuffer(img_bytes, dtype=np.uint8).reshape((28, 28))
+
+
+        images.append(img)
+        digits.append(digit)
+
+    conn.close()
+
+    return images, digits
+
 @app.route('/')
 def HomePage():
     return render_template("home.html")
@@ -63,6 +99,33 @@ def Training():
             'Code': result
         }
         return json.dumps(response_data), 200, {'ContentType': 'application/json'}
+    if data['MessageType'] == "Image":
+        image_b64 = data['imageBase64']
+        image_data = re.sub('^data:image/.+;base64,', '', image_b64)
+        decoded_bytes = base64.b64decode(image_data)
+        image_data_decoded = io.BytesIO(decoded_bytes)
+        image = Image.open(image_data_decoded)
+        image_array = np.array(image)[:,:,3]
+        image_array = np.invert(np.array([image_array]))
+        image_array = image_array.reshape(28,28)
+        
+        SaveImageToDatabase(data["ModelName"], data["Digit"], image_array)
+
+        response_data = {
+        'result': 'success',
+        }
+        return json.dumps(response_data), 200, {'ContentType': 'application/json'}
+    if data['MessageType'] == "StartTrain":
+        img, digits = GetImmagesFromDatabase(data["ModelName"])
+        x_train = np.stack(img)
+        y_train = np.stack(digits)
+        trainModel(x_train,y_train,f"models/{data['ModelName']}")
+        ###
+        response_data = {
+        'result': 'success',
+        }
+        return json.dumps(response_data), 200, {'ContentType': 'application/json'}
+
 
 
 @app.route('/recognize.html', methods=['POST'])

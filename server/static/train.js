@@ -1,3 +1,8 @@
+CurrentDigit = 0;
+DigitNumber = 0;
+MaxDigitNum = 10;
+MaxDigit = 9;
+
 document.addEventListener("DOMContentLoaded", function() {
     var canvas = document.getElementById("canvas");
     var context = canvas.getContext("2d");
@@ -40,7 +45,9 @@ document.addEventListener("DOMContentLoaded", function() {
                         //model name is correct
                         //saveButton.disabled = false;
                         //trainButton.disabled = false;
-                        errorLabel.
+
+                        //Digit to write to 0
+                        //set progressbar to 0%
                         break;
                     case "1":
                         //Name is too short
@@ -90,19 +97,76 @@ document.addEventListener("DOMContentLoaded", function() {
         // Code to save the drawn digit goes here
         // You can access the pixel data of the canvas using context.getImageData()
         // Perform any necessary preprocessing or data conversion before saving the digit
-        digitLabel.textContent = "Digit Saved!";
-    //    saveButton.disabled = true;
-    //    trainButton.disabled = false;
-        digitProgressBar.style.width = "100%";
+        sendDigit()
+        DigitNumber+=1;
+        if(CurrentDigit == MaxDigit && DigitNumber == MaxDigitNum){
+            console.log("All digits have been written");
+            //make train button active
+        }
+        if(DigitNumber == MaxDigitNum){
+            DigitNumber = 0;
+            CurrentDigit +=1;
+        }
+        console.log(CurrentDigit, DigitNumber);
+        
+        
+    }
+
+    function sendDigit(){
+
+        var tempCanvas = document.createElement('canvas');
+        tempCanvas.width = 28;
+        tempCanvas.height = 28;
+        var tempContext = tempCanvas.getContext('2d');
+    
+        // Draw the original canvas image onto the temporary canvas with the desired size
+        tempContext.drawImage(canvas, 0, 0, 28, 28);
+        var dataURL = tempCanvas.toDataURL();
+    
+        $.ajax({
+            url: "/train.html",
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify(
+                {
+                    MessageType: "Image",
+                    ModelName: modelNameInput.value+".db",
+                    Digit: CurrentDigit,
+                //    DigitNumber: DigitNumber,
+                    imageBase64: dataURL 
+                }),
+            success: function(response) {
+                console.log(response)
+            },
+            error: function(xhr, status, error) {
+                reject(error);
+            }
+        });
     }
 
 
 
     function trainModel() {
-        // Code to train the model goes here
-        // You can use the modelNameInput.value to get the model name
-        // Update the progress bars accordingly during the training process
-        // Display any errors or success messages using the errorLabel.textContent
+        $.ajax({
+            url: "/train.html",
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify(
+                {
+                    MessageType: "StartTrain",
+                    ModelName: modelNameInput.value+".db",
+                }),
+            success: function(response) {
+                console.log(response)
+            },
+            error: function(xhr, status, error) {
+                reject(error);
+            }
+        }).done(function() {
+          console.log('Train Started');
+        });
     }
 
     function clearCanvas() {
