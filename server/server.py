@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image
 import base64
 import re
+import os
 
 
 from AI.digitRecogniser import Recognizer
@@ -26,8 +27,22 @@ app = Flask(__name__,
             static_folder='static')
 
 
+def CheckModelNameValidity(ModelName):
+    #0 - OK
+    #1 - name too short
+    #2 - name already taken
+    if len(ModelName) < 3:
+        return 1
+    if os.path.exists(f"models/{ModelName}"):
+        return 2
+    return 0
+
 @app.route('/')
 def HomePage():
+    return render_template("home.html")
+
+@app.route('/home.html')
+def Home():
     return render_template("home.html")
 
 @app.route('/recognize.html')
@@ -37,6 +52,17 @@ def RecognizePage():
 @app.route('/train.html')
 def TrainPage():
     return render_template("train.html")
+
+@app.route("/train.html", methods = ["POST"])
+def Training():
+    data = request.get_json()
+    if data['MessageType'] == "ModelName":
+        result = CheckModelNameValidity(data['text'])
+        response_data = {
+            'result': 'success',
+            'Code': result
+        }
+        return json.dumps(response_data), 200, {'ContentType': 'application/json'}
 
 
 @app.route('/recognize.html', methods=['POST'])

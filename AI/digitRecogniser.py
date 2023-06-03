@@ -11,7 +11,6 @@ class Recognizer:
     
     def Recognize(self, img):
         img = np.invert(np.array([img]))
-        print(img.shape)
         prediction = self.model.predict(img, verbose = 0)
         return np.argmax(prediction)
 
