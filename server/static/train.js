@@ -21,6 +21,52 @@ document.addEventListener("DOMContentLoaded", function() {
         [lastX, lastY] = [e.offsetX, e.offsetY];
     }
 
+
+    $(document).ready(function() {
+        $('#model-name').on('input', function() {
+          var text = $(this).val();
+          
+          // Create the AJAX request
+          $.ajax({
+            url: '/train.html',
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({ MessageType: "ModelName", text: text }),
+            success: function(response) {
+              // Request was successful, do something with the response
+                switch(response.Code){
+                    case "0":
+                        //model name is correct
+                        //saveButton.disabled = false;
+                        //trainButton.disabled = false;
+                        errorLabel.
+                        break;
+                    case "1":
+                        //Name is too short
+                        //display error on special error label
+                        //set all buttons to disabled mode
+                        //saveButton.disabled = true;
+                        //trainButton.disabled = true;
+                        break;
+                    case "2":
+                        //Name is already taken
+                        //display error on special error label
+                        //set all buttons to disabled mode
+                        //saveButton.disabled = true;
+                        //trainButton.disabled = true;
+                        break;
+                }
+            
+            },
+            error: function(xhr, status, error) {
+              // Handle the error
+              console.log(error);
+            }
+          });
+        });
+      });
+
     function draw(e) {
         if (!isDrawing) return;
 
@@ -45,10 +91,12 @@ document.addEventListener("DOMContentLoaded", function() {
         // You can access the pixel data of the canvas using context.getImageData()
         // Perform any necessary preprocessing or data conversion before saving the digit
         digitLabel.textContent = "Digit Saved!";
-        saveButton.disabled = true;
-        trainButton.disabled = false;
+    //    saveButton.disabled = true;
+    //    trainButton.disabled = false;
         digitProgressBar.style.width = "100%";
     }
+
+
 
     function trainModel() {
         // Code to train the model goes here
@@ -60,8 +108,8 @@ document.addEventListener("DOMContentLoaded", function() {
     function clearCanvas() {
         context.clearRect(0, 0, canvas.width, canvas.height);
         digitLabel.textContent = "";
-        saveButton.disabled = false;
-        trainButton.disabled = true;
+    //    saveButton.disabled = false;
+    //    trainButton.disabled = true;
         digitProgressBar.style.width = "0";
         overallProgressBar.style.width = "0";
         errorLabel.textContent = "";
