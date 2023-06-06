@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Digit Recognition</title>
-    <link rel="stylesheet" href="style_recognize.css">
+    <link rel="stylesheet" href="../static/style_recognize.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
@@ -23,18 +23,35 @@
     <main>
         <div class="container">
             <h2>Draw a Digit</h2>
-            <div class="painting-section">
-                <canvas id="canvas" width="560" height="560"></canvas>
-                <div class="controls">
-                    <label for="brush-size">Brush Size:</label>
-                    <input type="range" id="brush-size" min="1" max="20" value="5">
-                    <label for="brush-color">Brush Color:</label>
-                    <input type="color" id="brush-color" value="#000000">
+            <div id="recognize-controls">
+                <div class="flex-container">
+                    <div class="canvas-container">
+                        <div id="digit-label" class="digit-label"></div>
+                        <canvas id="canvas" width="560" height="560"></canvas>
+                    </div>
+                    <div class="controls-container">
+                        <div class="model-selection">
+                            <label for="model-name">Choose Model:</label>
+                            <select id="model">
+                                <option value="mnist">MNIST</option>
+                                <option value="cifar">CIFAR</option>
+                            </select>
+                        </div>
+                        <br>
+                        <br>
+                        <div class="panel">
+                            <p id="model-name">Model: </p>
+                            <br>
+                            <div id="recognize-digit">Result: </div>
+                        </div>
+                        <br>
+                        <br>
+                        <div class="buttons">
+                            <button id="save">Recognize Digit</button>
+                            <button id="clear">Clear Canvas</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="buttons">
-                <button id="save">Recognize Digit</button>
-                <button id="clear">Clear Canvas</button>
             </div>
         </div>
     </main>
@@ -54,6 +71,6 @@
         </div>
     </footer>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="main.js"></script>
+    <script src="../static/recognize.js"></script>
 </body>
 </html>
