@@ -127,16 +127,22 @@ label {
     box-shadow: 0 0 12px rgba(5, 184, 255, 0.6);
 }
 
-.train-button,
-.recognize-button, 
-.clear-button {
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    flex-direction: column;
-    margin-right: 100px;
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background-color: #f3f3f3;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    margin-left: 15px;
 }
 
+.train-button[disabled],
+.recognize-button[disabled],
+.clear-button[disabled] {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+}
 
 .train-button,
 .recognize-button,
@@ -155,28 +161,14 @@ label {
     color: #ffffff;
 }
 
-.train-button:hover {
-    background-color: #007BFF;
-}
-
-.train-button:active {
-    transform: translateY(1px);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.recognize-button:hover {
-    background-color: #007BFF;
-}
-
-.recognize-button:active {
-    transform: translateY(1px);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
+.train-button:hover,
+.recognize-button:hover,
 .clear-button:hover {
     background-color: #007BFF;
 }
 
+.train-button:active,
+.recognize-button:active,
 .clear-button:active {
     transform: translateY(1px);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
