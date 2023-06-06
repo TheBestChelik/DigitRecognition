@@ -40,29 +40,25 @@ document.addEventListener("DOMContentLoaded", function() {
             data: JSON.stringify({ MessageType: "ModelName", text: text }),
             success: function(response) {
               // Request was successful, do something with the response
-                switch(response.Code){
-                    case "0":
-                        //model name is correct
-                        //saveButton.disabled = false;
-                        //trainButton.disabled = false;
-
-                        //Digit to write to 0
-                        //set progressbar to 0%
-                        break;
-                    case "1":
-                        //Name is too short
-                        //display error on special error label
-                        //set all buttons to disabled mode
-                        //saveButton.disabled = true;
-                        //trainButton.disabled = true;
-                        break;
-                    case "2":
-                        //Name is already taken
-                        //display error on special error label
-                        //set all buttons to disabled mode
-                        //saveButton.disabled = true;
-                        //trainButton.disabled = true;
-                        break;
+                switch (response.Code) {
+                        case "0":
+                          // Model name is correct
+                          saveButton.disabled = false;
+                          trainButton.disabled = false;
+                          errorLabel.textContent = "";
+                          break;
+                        case "1":
+                          // Name is too short
+                          saveButton.disabled = true;
+                          trainButton.disabled = true;
+                          errorLabel.textContent = "Name is too short.";
+                          break;
+                        case "2":
+                          // Name is already taken
+                          saveButton.disabled = true;
+                          trainButton.disabled = true;
+                          errorLabel.textContent = "Name is already taken.";
+                          break;
                 }
             
             },
