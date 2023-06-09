@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Digit Recognition</title>
+        <link rel="stylesheet" href="../static/style_update.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <h1>Digit Recognizer</h1>
+                <nav>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="recognize.html">Recognize</a></li>
+                        <li><a href="train.html">Train</a></li>
+                        <li><a href="update.html">Update Model</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+        <main>
+            <div class="container">
+                <h2>Draw a Digit</h2>
+                <div id="recognize-controls">
+                    <div class="flex-container">
+                        <div class="canvas-container">
+                            <div id="digit-label" class="digit-label"></div>
+                            <canvas id="canvas" width="560" height="560"></canvas>
+                        </div>
+                        <div class="controls-container">
+                            <div class="model-selection">
+                                <label for="model-name">Choose Model:</label>
+                                <select id="model">
+                                    <option value="mnist">MNIST</option>
+                                    <option value="cifar">CIFAR</option>
+                                </select>
+                            </div>
+                            <br>
+                            <br>
+                            <div class="panel">
+                                <label for="model-name">Digit to update :</label>
+                                <input type="text" id="model-name">
+                                <div id="model-name-error" class="error-label"></div>
+                                <br>
+                                <label id="Digit" for="recognize-digit">Digits saved: </label>
+                                <div id="recognize-digit"></div>
+                            </div>
+                            <br>
+                            <br>
+                            <div class="buttons">
+                                <button id="save">Save</button>
+                                <button id="clear">Clear Canvas</button>
+                                <button id="retrain">Retrain</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    <footer>
+        <div class="container">
+            <p>© 2023 Digit Recognizer. All rights reserved.</p>
+            <ul class="footer-links">
+                <li><a href="https://github.com/TheBestChelik/DigitRecognition">Privacy Policy</a></li>
+                <li><a href="https://github.com/TheBestChelik/DigitRecognition">Terms of Service</a></li>
+            </ul>
+            <div class="social-media">
+                <a href="https://www.facebook.com/groups/DSRiv" class="icon"><i class="fab fa-facebook"></i></a>
+                <a href="https://twitter.com/elonmusk?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor" class="icon"><i class="fab fa-twitter"></i></a>
+                <a href="https://www.instagram.com/skryhit/" class="icon"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="../static/update.js"></script>
+</body>
+</html>
