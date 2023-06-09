@@ -107,6 +107,14 @@
     margin-right: 10px;
     opacity: 0.8;
     margin-left: 60px;
+  } 
+
+  #Name, #Digit{
+    font-size: 18px;
+    letter-spacing: 1px;
+    margin-right: 10px;
+    opacity: 0.8;
+    margin-left: 30px;
   }
 
   .model-selection {
