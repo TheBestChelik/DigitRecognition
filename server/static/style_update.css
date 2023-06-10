@@ -121,6 +121,8 @@
     display: flex;
     align-items: center;
     margin-bottom: 20px;
+    margin-right: 10px;
+    margin-left: 150px;
   }
 
   .model-selection label {
