@@ -16,25 +16,6 @@ from AI.train import trainModel
 from AI.digitRecogniser import Recognizer
 
 
-class R:
-    def __init__(self) -> None:
-        self.recognizer = Recognizer()
-        self.currentModel = ""
-    def Recognise(self, image):
-        return self.recognizer.Recognize(image)
-    def setModel(self, modelName):
-        if modelName!=self.currentModel:
-            self.currentModel = modelName
-            self.recognizer.SetModel(f"models\{modelName}.model")
-
-
-    
-r = R()
-app = Flask(__name__,
-            static_url_path='',
-            static_folder='static')
-
-
 def getModelNames():
     folders = []
     for item in os.listdir("models/"):
@@ -86,6 +67,29 @@ def GetImmagesFromDatabase(database):
     conn.close()
 
     return images, digits
+
+class R:
+    def __init__(self) -> None:
+        self.recognizer = Recognizer()
+        self.currentModel = ""
+        self.setModel(getModelNames()[0])
+
+    def Recognise(self, image):
+        return self.recognizer.Recognize(image)
+    def setModel(self, modelName):
+        if modelName!=self.currentModel:
+            self.currentModel = modelName
+            self.recognizer.SetModel(f"models\{modelName}.model")
+
+
+    
+r = R()
+app = Flask(__name__,
+            static_url_path='',
+            static_folder='static')
+
+
+
 
 @app.route('/')
 def HomePage():
