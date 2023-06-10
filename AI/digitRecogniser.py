@@ -5,7 +5,7 @@ import numpy as np
 import os
 class Recognizer:
     def __init__(self):
-        pass
+        self.currentModel = ""
     def SetModel(self, modelName):
         self.model = tf.keras.models.load_model(modelName)
     

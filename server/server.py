@@ -3,7 +3,7 @@ import io
 import json
 import sqlite3
 import sys
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from matplotlib import pyplot as plt
 import numpy as np
 from PIL import Image
@@ -19,15 +19,29 @@ from AI.digitRecogniser import Recognizer
 class R:
     def __init__(self) -> None:
         self.recognizer = Recognizer()
-        self.recognizer.SetModel("models\Hyi.model")
+        self.currentModel = ""
     def Recognise(self, image):
         return self.recognizer.Recognize(image)
+    def setModel(self, modelName):
+        if modelName!=self.currentModel:
+            self.currentModel = modelName
+            self.recognizer.SetModel(f"models\{modelName}.model")
+
+
     
 r = R()
 app = Flask(__name__,
             static_url_path='',
             static_folder='static')
 
+
+def getModelNames():
+    folders = []
+    for item in os.listdir("models/"):
+        item_path = os.path.join("models/", item)
+        if os.path.isdir(item_path) and item.endswith('.model'):
+            folders.append(item.replace(".model",""))
+    return folders
 
 def CheckModelNameValidity(ModelName):
     #0 - OK
@@ -127,25 +141,43 @@ def Training():
         return json.dumps(response_data), 200, {'ContentType': 'application/json'}
 
 
+@app.route("/recognize.html/data", methods  = ['GET'])
+def GetModels():
+    models = getModelNames()
+    return jsonify(models)
 
 @app.route('/recognize.html', methods=['POST'])
-def get_image():
-    image_b64 = request.values['imageBase64']
-    image_data = re.sub('^data:image/.+;base64,', '', image_b64)
-    decoded_bytes = base64.b64decode(image_data)
-    image_data_decoded = io.BytesIO(decoded_bytes)
-    image = Image.open(image_data_decoded)
-    image_array = np.array(image)[:,:,3]
-    image_array = np.invert(np.array([image_array]))
-    image_array = image_array.reshape(28,28)
-    
-    digit = r.Recognise(image_array)
-    
-    response_data = {
-        'result': 'success',
-        'digit': str(digit)
-    }
-    return json.dumps(response_data), 200, {'ContentType': 'application/json'}
+def Process():
+    data = request.get_json()
+    if data['cmd'] == "Recognise":
+        image_b64 = data['imageBase64']
+        image_data = re.sub('^data:image/.+;base64,', '', image_b64)
+        decoded_bytes = base64.b64decode(image_data)
+        image_data_decoded = io.BytesIO(decoded_bytes)
+        image = Image.open(image_data_decoded)
+        image_array = np.array(image)[:,:,3]
+        image_array = np.invert(np.array([image_array]))
+        image_array = image_array.reshape(28,28)
+        
+        
+        digit = r.Recognise(image_array)
+        
+        response_data = {
+            'digit': str(digit)
+        }
+        return json.dumps(response_data), 200, {'ContentType': 'application/json'}
+    elif data['cmd'] == "ChangeModel":
+        r.setModel(data['model'])
+        response = {
+        "status": "success",
+        }
+
+        return json.dumps(response)
+
+
+        
+
+
 
 @app.route('/hello')
 def hello():

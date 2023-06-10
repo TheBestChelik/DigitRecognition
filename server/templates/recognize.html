@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Digit Recognition</title>
-    <link rel="stylesheet" href="../static/style_recognize.css">
+    <link rel="stylesheet" href="style_recognize.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
@@ -31,22 +31,16 @@
                     </div>
                     <div class="controls-container">
                             <label for="model-name">Choose Model:</label>
-                            <br>
-                            <br>
-                            <div class="model-selection">
-                                <select id="model">
-                                    <option value="mnist">MNIST</option>
-                                    <option value="cifar">CIFAR</option>
-                                </select>
-                            </div>
+                            <select id="model">
+                                <option value="mnist">MNIST</option>
+                                <option value="cifar">CIFAR</option>
+                            </select>
+                        </div>
                         <br>
                         <br>
                         <div class="panel">
-                            <label id="Name" for="model-name">Model: </label>
-                            <p id="model-name"></p>
-                            <br>
                             <label id="Digit" for="recognize-digit">Result: </label>
-                            <div id="recognize-digit"></div>
+                            <label id="recognize-digit"></label>
                         </div>
                         <br>
                         <br>
@@ -75,6 +69,6 @@
         </div>
     </footer>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="../static/recognize.js"></script>
+    <script src="recognize.js"></script>
 </body>
 </html>
