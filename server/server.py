@@ -16,13 +16,30 @@ from AI.train import trainModel
 from AI.digitRecogniser import Recognizer
 
 
-def getModelNames():
+def getModelNames(OnlyEditable = False):
     folders = []
     for item in os.listdir("models/"):
         item_path = os.path.join("models/", item)
         if os.path.isdir(item_path):
             folders.append(item)
-    return folders
+
+    conn = sqlite3.connect('models/Database.db')
+    c = conn.cursor()
+    c.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    models = c.fetchall()
+    EditableModels = []
+    for model in models:
+        if model[0] not in folders: 
+            #deleting model from database if it is not present in list of models
+            c.execute(f"DROP TABLE IF EXISTS {model[0]};")
+        else:
+            EditableModels.append(model[0])
+    conn.close()
+    if OnlyEditable:
+        return EditableModels
+    else:
+        return folders
+    
 
 def CheckModelNameValidity(ModelName):
     #0 - OK
@@ -53,11 +70,13 @@ def CheckModelNameValidity(ModelName):
     # Close the cursor and the database connection
     cursor.close()
     conn.close()
-    print("Name is ok")
     return 0
 
 
 def SaveImageToDatabase(tableName, digit, img):
+    if img.shape!=(28,28):
+        print("NOT SAVED, INCORRECT SHAPE")
+        return
     conn = sqlite3.connect(f"models/Database.db")
     c = conn.cursor()
     c.execute(f"CREATE TABLE IF NOT EXISTS {tableName} (digit INTEGER, image BLOB)")
@@ -87,7 +106,6 @@ def GetImmagesFromDatabase(tableName):
         digits.append(digit)
 
     conn.close()
-    print(digits)
 
     return images, digits
 
@@ -117,7 +135,7 @@ app = Flask(__name__,
 
 @app.route('/')
 def HomePage():
-    return render_template("home.html")
+    return render_template("recognize.html")
 
 @app.route('/home.html')
 def Home():
@@ -199,6 +217,71 @@ def Process():
         }
 
         return json.dumps(response)
+
+@app.route('/update.html')
+def UpdatePage():
+    return render_template("update.html")
+
+
+@app.route("/update.html/data", methods  = ['GET'])
+def GetModelsUpdate():
+    models = getModelNames(True)
+    return jsonify(models)
+
+@app.route('/update.html', methods=['POST'])
+def ProcessUpdate():
+    data = request.get_json()
+    if data['cmd'] == "Recognise":
+        r.setModel(data['model'])
+        image_b64 = data['imageBase64']
+        image_data = re.sub('^data:image/.+;base64,', '', image_b64)
+        decoded_bytes = base64.b64decode(image_data)
+        image_data_decoded = io.BytesIO(decoded_bytes)
+        image = Image.open(image_data_decoded)
+        image_array = np.array(image)[:,:,3]
+        image_array = np.invert(np.array([image_array]))
+        image_array = image_array.reshape(28,28)
+        
+        
+        digit = r.Recognise(image_array)
+        
+        response_data = {
+            'digit': str(digit)
+        }
+        return json.dumps(response_data), 200, {'ContentType': 'application/json'}
+    elif data['cmd'] == "ChangeModel":
+        r.setModel(data['model'])
+        response = {
+        "status": "success",
+        }
+
+        return json.dumps(response)
+    elif data['cmd'] == "SaveImage":
+        image_b64 = data['imageBase64']
+        image_data = re.sub('^data:image/.+;base64,', '', image_b64)
+        decoded_bytes = base64.b64decode(image_data)
+        image_data_decoded = io.BytesIO(decoded_bytes)
+        image = Image.open(image_data_decoded)
+        image_array = np.array(image)[:,:,3]
+
+        SaveImageToDatabase(data["ModelName"], data["Digit"], image_array)
+
+        response_data = {
+        'result': 'success',
+        }
+        return json.dumps(response_data), 200, {'ContentType': 'application/json'}
+    elif data['cmd'] == "Retrain":
+        img, digits = GetImmagesFromDatabase(data["ModelName"])
+        x_train = np.stack(img)
+        y_train = np.stack(digits)
+        trainModel(x_train,y_train,f"models/{data['ModelName']}")
+        ###
+        response_data = {
+        'result': 'success',
+        }
+        return json.dumps(response_data), 200, {'ContentType': 'application/json'}
+    else:
+        print(f"Command {data['cmd']} not identified")
 
 
         
