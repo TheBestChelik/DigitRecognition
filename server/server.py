@@ -20,36 +20,58 @@ def getModelNames():
     folders = []
     for item in os.listdir("models/"):
         item_path = os.path.join("models/", item)
-        if os.path.isdir(item_path) and item.endswith('.model'):
-            folders.append(item.replace(".model",""))
+        if os.path.isdir(item_path):
+            folders.append(item)
     return folders
 
 def CheckModelNameValidity(ModelName):
     #0 - OK
     #1 - name too short
     #2 - name already taken
+    #3 - u cant use spaces in name
+    #4 model name cant start with digit
+    if " " in ModelName:
+        return 3
+    if ModelName and ModelName[0].isdigit():
+        return 4
     if len(ModelName) < 3:
         return 1
-    if os.path.exists(f"models/{ModelName}"):
+    conn = sqlite3.connect('models/Database.db')
+    cursor = conn.cursor()
+
+    # Execute the SELECT statement to query the master table
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (ModelName,))
+
+    # Fetch the result
+    result = cursor.fetchone()
+
+    # Check if the table exists
+    if result is not None:
+        cursor.close()
+        conn.close()
         return 2
+    # Close the cursor and the database connection
+    cursor.close()
+    conn.close()
+    print("Name is ok")
     return 0
 
 
-def SaveImageToDatabase(database, digit, img):
-    conn = sqlite3.connect(f"models/{database}")
+def SaveImageToDatabase(tableName, digit, img):
+    conn = sqlite3.connect(f"models/Database.db")
     c = conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS Images (digit INTEGER, image BLOB)")
+    c.execute(f"CREATE TABLE IF NOT EXISTS {tableName} (digit INTEGER, image BLOB)")
     img_bytes = img.tobytes()
-    c.execute("INSERT INTO Images (digit, image) VALUES (?, ?)", (digit, img_bytes))
+    c.execute(f"INSERT INTO {tableName} (digit, image) VALUES (?, ?)", (digit, img_bytes))
     conn.commit()
     conn.close()
 
 
-def GetImmagesFromDatabase(database):
-    conn = sqlite3.connect(f"models/{database}")
+def GetImmagesFromDatabase(tableName):
+    conn = sqlite3.connect(f"models/Database.db")
     cursor = conn.cursor()
 
-    cursor.execute("SELECT digit, image FROM Images")
+    cursor.execute(f"SELECT digit, image FROM {tableName}")
     rows = cursor.fetchall()
     digits = []
     images = []
@@ -65,6 +87,7 @@ def GetImmagesFromDatabase(database):
         digits.append(digit)
 
     conn.close()
+    print(digits)
 
     return images, digits
 
@@ -79,7 +102,7 @@ class R:
     def setModel(self, modelName):
         if modelName!=self.currentModel:
             self.currentModel = modelName
-            self.recognizer.SetModel(f"models\{modelName}.model")
+            self.recognizer.SetModel(f"models\{modelName}")
 
 
     
@@ -87,6 +110,7 @@ r = R()
 app = Flask(__name__,
             static_url_path='',
             static_folder='static')
+
 
 
 
@@ -124,9 +148,7 @@ def Training():
         image_data_decoded = io.BytesIO(decoded_bytes)
         image = Image.open(image_data_decoded)
         image_array = np.array(image)[:,:,3]
-        image_array = np.invert(np.array([image_array]))
-        image_array = image_array.reshape(28,28)
-        
+
         SaveImageToDatabase(data["ModelName"], data["Digit"], image_array)
 
         response_data = {

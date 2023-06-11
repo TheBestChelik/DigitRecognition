@@ -31,6 +31,7 @@
                         <canvas id="canvas" width="560" height="560"></canvas>
                     </div>                    
                     <div class="controls-container">
+                        <label id="ErrorLabel" style="color: red; font-size: 17px;"></label>
                         <label for="model-name">Model name:</label>
                         <input type="text" id="model-name">
                         <div id="model-name-error" class="error-label"></div>
@@ -39,13 +40,14 @@
                         <button id="save" class="recognize-button">Save</button>
                         <br>
                         <br>
-                        <label for="digit-progress">Digit:</label>
+                        <label for="digit-progress">Draw Digit:</label>
+                        <br>
+                        <label id = "digit-to-draw"></label>
+                        <br>
+                        <label id = "progress" for="overall-progress">Progress:</label>
                         <br>
                         <br>
-                        <label for="overall-progress">Progress:</label>
-                        <br>
-                        <br>
-                        <div id="overall-progress" class="progress-bar"></div>
+                        <progress  id="overall-progress" class="progress-bar" value="0" max="100"></progress >
                         <br>
                         <button id="train" class="train-button">Train</button>
                         <br>

@@ -60,16 +60,23 @@ document.addEventListener("DOMContentLoaded", function() {
     canvas.addEventListener("mousemove", draw);
     canvas.addEventListener("mouseup", stopDrawing);
     canvas.addEventListener("mouseout", stopDrawing);
+    canvas.addEventListener("contextmenu", function(event) {
+      // Prevent the default right-click behavior (e.g., showing the context menu)
+      event.preventDefault();
+      
+      ClearCanvas()
+    });
   
     // Function to start drawing
     function startDrawing(e) {
+      if( e.button === 1) return;
       isDrawing = true;
       [lastX, lastY] = [e.offsetX, e.offsetY];
     }
   
     // Function to draw
     function draw(e) {
-        if (!isDrawing) return;
+        if (!isDrawing || e.button === 1) return;
 
         context.beginPath();
         context.moveTo(lastX, lastY);
@@ -84,20 +91,24 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   
     // Function to stop drawing
-    function stopDrawing() {
+    function stopDrawing(event) {
+
       isDrawing = false;
+      if(event.button === 0){
+        RecognizeDigit();
+      }
     }
   
     // Clear canvas
     const clearButton = document.getElementById("clear");
-    clearButton.addEventListener("click", function() {
+    clearButton.addEventListener("click", ClearCanvas());
+
+    function ClearCanvas(){
       context.clearRect(0, 0, canvas.width, canvas.height);
       document.getElementById("recognize-digit").textContent = "";
-    });
-  
-    // Recognize digit
-    const recognizeButton = document.getElementById("save");
-    recognizeButton.addEventListener("click", function() {
+    }
+
+    function RecognizeDigit(){
       const imageData = canvas.toDataURL("image/png");
       const model = document.getElementById("model").value;
   
@@ -123,6 +134,10 @@ document.addEventListener("DOMContentLoaded", function() {
       .then(function(responseObject) {
         document.getElementById("recognize-digit").textContent = responseObject.digit;
       })
-    });
+    }
+  
+    // Recognize digit
+    const recognizeButton = document.getElementById("save");
+    recognizeButton.addEventListener("click", RecognizeDigit);
   });
   

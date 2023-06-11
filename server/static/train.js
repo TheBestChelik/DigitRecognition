@@ -12,15 +12,17 @@ document.addEventListener("DOMContentLoaded", function() {
     const trainButton = document.getElementById("train");
     const clearButton = document.getElementById("clear");
     const modelNameInput = document.getElementById("model-name");
-    const digitProgressBar = document.getElementById("digit-progress");
+    const DigitToDraw = document.getElementById("digit-to-draw");
+    const digitProgress =  document.getElementById("progress");
     const overallProgressBar = document.getElementById("overall-progress");
-    const errorLabel = document.getElementById("error-label");
+    const errorLabel = document.getElementById("ErrorLabel");
 
     let isDrawing = false;
     let lastX = 0;
     let lastY = 0;
 
     function startDrawing(e) {
+        if( e.button === 1) return;
         isDrawing = true;
         [lastX, lastY] = [e.offsetX, e.offsetY];
     }
@@ -39,24 +41,37 @@ document.addEventListener("DOMContentLoaded", function() {
             success: function(response) {
               // Request was successful, do something with the response
               switch (response.Code) {
-                case "0":
+                case 0:
                   // Model name is correct
                   saveButton.disabled = false;
-                  trainButton.disabled = false;
                   errorLabel.textContent = "";
+                  DigitToDraw.textContent = "0";
                   break;
-                case "1":
+                case 1:
                   // Name is too short
                   saveButton.disabled = true;
                   trainButton.disabled = true;
                   errorLabel.textContent = "Name is too short.";
+                  DigitToDraw.textContent = "";
                   break;
-                case "2":
+                case 2:
                   // Name is already taken
                   saveButton.disabled = true;
                   trainButton.disabled = true;
                   errorLabel.textContent = "Name is already taken.";
+                  DigitToDraw.textContent = "";
                   break;
+                case 3:
+                  saveButton.disabled = true;
+                  trainButton.disabled = true;
+                  errorLabel.textContent = "Spaces are not allowed.";
+                  DigitToDraw.textContent = "";
+                  break;
+                case 4:
+                  saveButton.disabled = true;
+                  trainButton.disabled = true;
+                  errorLabel.textContent = "Name can not start with digit.";
+                  DigitToDraw.textContent = "";
               }
             },
             error: function(xhr, status, error) {
@@ -68,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     function draw(e) {
-        if (!isDrawing) return;
+        if (!isDrawing || e.button === 1) return;
 
         context.beginPath();
         context.moveTo(lastX, lastY);
@@ -84,20 +99,29 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function stopDrawing() {
         isDrawing = false;
-    }
+      }
 
     function saveDigit() {
+        modelNameInput.disabled = true;
         sendDigit();
         DigitNumber += 1;
         if (CurrentDigit === MaxDigit && DigitNumber === MaxDigitNum) {
             console.log("All digits have been written");
+            saveButton.disabled = true;
+            trainButton.disabled = false;
             // Make train button active
         }
         if (DigitNumber === MaxDigitNum) {
             DigitNumber = 0;
             CurrentDigit += 1;
         }
-        console.log(CurrentDigit, DigitNumber);
+        DigitToDraw.textContent = CurrentDigit;
+        var value = (CurrentDigit*MaxDigitNum+DigitNumber)/((MaxDigit+1)*MaxDigitNum) * 100;
+        value = Math.round(value)
+        console.log(value)
+        overallProgressBar.value = value;
+        digitProgress.textContent = "Progress: "+value+"%";
+        clearCanvas();
     }
 
     function sendDigit() {
@@ -117,13 +141,10 @@ document.addEventListener("DOMContentLoaded", function() {
             contentType: 'application/json',
             data: JSON.stringify({
                 MessageType: "Image",
-                ModelName: modelNameInput.value + ".db",
+                ModelName: modelNameInput.value,
                 Digit: CurrentDigit,
                 imageBase64: dataURL
             }),
-            success: function(response) {
-                console.log(response)
-            },
             error: function(xhr, status, error) {
                 console.log(error);
             }
@@ -131,6 +152,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function trainModel() {
+        trainButton.disabled = true;
         $.ajax({
             url: "/train.html",
             type: "POST",
@@ -138,25 +160,16 @@ document.addEventListener("DOMContentLoaded", function() {
             contentType: 'application/json',
             data: JSON.stringify({
                 MessageType: "StartTrain",
-                ModelName: modelNameInput.value + ".db",
+                ModelName: modelNameInput.value,
             }),
-            success: function(response) {
-                console.log(response)
-            },
             error: function(xhr, status, error) {
                 console.log(error);
             }
-        }).done(function() {
-            console.log('Train Started');
-        });
+        })
     }
 
     function clearCanvas() {
         context.clearRect(0, 0, canvas.width, canvas.height);
-        digitLabel.textContent = "";
-        digitProgressBar.style.width = "0";
-        overallProgressBar.style.width = "0";
-        errorLabel.textContent = "";
     }
 
     // Event listeners
@@ -164,6 +177,12 @@ document.addEventListener("DOMContentLoaded", function() {
     canvas.addEventListener("mousemove", draw);
     canvas.addEventListener("mouseup", stopDrawing);
     canvas.addEventListener("mouseout", stopDrawing);
+    canvas.addEventListener("contextmenu", function(event) {
+      // Prevent the default right-click behavior (e.g., showing the context menu)
+      event.preventDefault();
+      
+      clearCanvas()
+    });
 
     saveButton.addEventListener("click", saveDigit);
     trainButton.addEventListener("click", trainModel);
