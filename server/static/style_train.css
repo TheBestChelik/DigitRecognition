@@ -128,12 +128,12 @@ label {
 }
 
 .progress-bar {
-    width: 100%;
+    width: 60%;
     height: 20px;
     background-color: #f3f3f3;
     border-radius: 5px;
     margin-bottom: 10px;
-    margin-left: 15px;
+    margin-left: 5px;
 }
 
 .train-button[disabled],
@@ -144,7 +144,7 @@ label {
     cursor: not-allowed;
 }
 
-.train-button,
+.train-button, 
 .recognize-button,
 .clear-button {
     margin: 0 10px;
@@ -161,13 +161,13 @@ label {
     color: #ffffff;
 }
 
-.train-button:hover,
+.train-button:hover, 
 .recognize-button:hover,
 .clear-button:hover {
     background-color: #007BFF;
 }
 
-.train-button:active,
+.train-button:active, 
 .recognize-button:active,
 .clear-button:active {
     transform: translateY(1px);
@@ -175,9 +175,10 @@ label {
 }
 
 footer {
-    background-color: #000000;
+    --footer-background: #000000;
     padding: 20px;
     text-align: center;
+    position: relative; 
 }
 
 .footer-links {
