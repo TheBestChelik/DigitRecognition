@@ -175,7 +175,7 @@ label {
 }
 
 footer {
-    --footer-background: #000000;
+    background: #000000;
     padding: 20px;
     text-align: center;
     position: relative; 
