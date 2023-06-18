@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Digit Recognizer - Train</title>
-    <link rel="stylesheet" href="style_train.css">
+    <link rel="stylesheet" href="../static/style_train.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
@@ -29,12 +29,14 @@
                     <div class="canvas-container">
                         <div id="digit-label" class="digit-label"></div>
                         <canvas id="canvas" width="560" height="560"></canvas>
-                    </div>                    
+                    </div>
                     <div class="controls-container">
                         <label id="ErrorLabel" style="color: red; font-size: 17px;"></label>
                         <label for="model-name">Model name:</label>
                         <input type="text" id="model-name">
                         <div id="model-name-error" class="error-label"></div>
+                        <br>
+                        <button id="clear" class="clear-button">Clear Canvas</button>
                         <br>
                         <br>
                         <button id="save" class="recognize-button">Save</button>
@@ -42,23 +44,22 @@
                         <br>
                         <label for="digit-progress">Draw Digit:</label>
                         <br>
-                        <label id = "digit-to-draw"></label>
+                        <label id="digit-to-draw"></label>
                         <br>
-                        <label id = "progress" for="overall-progress">Progress:</label>
+                        <label id="progress" for="overall-progress">Progress:</label>
                         <br>
                         <br>
-                        <progress  id="overall-progress" class="progress-bar" value="0" max="100"></progress >
+                        <progress id="overall-progress" class="progress-bar" value="0" max="100"></progress>
+                        <br>
                         <br>
                         <button id="train" class="train-button">Train</button>
                         <br>
                         <br>
-                        <button id="clear" class="clear-button">Clear Canvas</button>
                     </div>
                 </div>
             </div>
         </div>
     </main>
-
     <footer>
         <div class="container">
             <p>© 2023 Digit Recognizer. All rights reserved.</p>
@@ -73,7 +74,8 @@
             </div>
         </div>
     </footer>
+
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="train.js"></script>
+    <script src="../static/train.js"></script>
 </body>
 </html>
