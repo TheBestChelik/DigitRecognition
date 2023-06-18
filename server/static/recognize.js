@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function() {
   
     // Clear canvas
     const clearButton = document.getElementById("clear");
-    clearButton.addEventListener("click", ClearCanvas());
+    clearButton.addEventListener("click", ClearCanvas);
 
     function ClearCanvas(){
       context.clearRect(0, 0, canvas.width, canvas.height);
