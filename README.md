@@ -5,3 +5,8 @@ This project is a simple digit recognition program that uses a neural network to
 - Python 3.6+
 - NumPy
 - TensorFlow
+
+Run the application:
+  
+   ```shell
+   python main.py
