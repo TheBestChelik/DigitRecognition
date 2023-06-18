@@ -12,10 +12,12 @@
 This project showcases the core concept of utilizing AI for recognizing handwritten digits. It includes a pre-existing MNIST model, consisting of a dataset with 60,000 images. The project also offers the option to train a custom model using TensorFlow, allowing users to enhance the AI's recognition capabilities
 
 ## Digit Recognition mode
+![](https://github.com/TheBestChelik/DigitRecognition/blob/master/screens/Recognize.png?raw=true)
 In this mode, you can select a specific model from a dropdown list and draw a digit on the canvas. The canvas size is 560x560 pixels, and the drawn image is automatically converted to a 28x28 pixel image. This image is then sent to the server, where TensorFlow utilizes the chosen model to recognize the digit. The result of the recognition process is displayed in a designated field. To clear the canvas, simply press the right mouse button.
 
 ## Train mode
- In this mode, you have the opportunity to train your own model. Follow these steps:
+![](https://github.com/TheBestChelik/DigitRecognition/blob/master/screens/Train.png?raw=true)
+In this mode, you have the opportunity to train your own model. Follow these steps:
 
 1. Enter the desired name for your future model in the designated field.
 2. Use the "Draw Digit" field to draw the digit you want to train the model on.
@@ -29,6 +31,7 @@ Similar to the Recognize mode, the canvas size is 560x560 pixels, and the drawn 
 
 As a convenient feature, you can clear the canvas at any time by pressing the right mouse button. 
 ## Update model mode
+![](https://github.com/TheBestChelik/DigitRecognition/blob/master/screens/Update.png?raw=true)
 In this mode, you can update your existing models. Please note that only editable models, which are stored in the database, can be updated. The MNIST model, for example, cannot be updated since it is not present in the database file.
 
 Follow these steps to update your model:
