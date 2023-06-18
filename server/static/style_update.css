@@ -109,13 +109,26 @@
     margin-left: 40px;
   }
 
-  #Digit{
-    font-size: 18px;
-    letter-spacing: 1px;
-    margin-right: 10px;
-    opacity: 0.8;
-    margin-left: 40px;
+  #digit{
+      border: none;
+      background-color: #1a1a1a;
+      padding: 8px 12px;
+      color: #ffffff;
+      font-size: 16px;
+      letter-spacing: 1px;
+      border-radius: 4px;
+      outline: none;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+      transition: box-shadow 0.3s ease;
+      text-align: center;
+      margin-bottom: 20px;
+      margin-left: 30px;
   }
+  
+  #digit:focus {
+      box-shadow: 0 0 12px rgba(5, 184, 255, 0.6);
+  }
+
 
   .model-selection {
     display: flex;
