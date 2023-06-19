@@ -283,11 +283,6 @@ def ProcessUpdate():
     else:
         print(f"Command {data['cmd']} not identified")
 
-
-        
-
-
-
 @app.route('/hello')
 def hello():
     return 'Hello, World'
